@@ -21,12 +21,13 @@ public class HealthCheckTest extends BaseTest {
                 .when()
                 .post(PING)
                 .then()
+                .spec(responseSpec)
                 .assertThat()
                 .statusCode(HttpStatus.SC_CREATED);
     }
 
     @Test
-    @DisplayName("Ping Test with wrong method. Checking if status code is NOT_FOUND")
+    @DisplayName("Ping Test with wrong method. Checking if status code is METHOD_NOT_ALLOWED")
     @Epic("Ping")
     @Feature("Sad path")
     @Story("Wrong method")
@@ -37,7 +38,8 @@ public class HealthCheckTest extends BaseTest {
                 .when()
                 .get(PING)
                 .then()
+                .spec(responseSpec)
                 .assertThat()
-                .statusCode(HttpStatus.SC_NOT_FOUND);
+                .statusCode(HttpStatus.SC_METHOD_NOT_ALLOWED);
     }
 }

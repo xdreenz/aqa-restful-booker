@@ -2,6 +2,9 @@ package org.example.aqa.test;
 
 import io.qameta.allure.*;
 import io.restassured.http.ContentType;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.http.HttpStatus;
+import org.example.aqa.data.APIHelper;
 import org.junit.jupiter.api.*;
 import org.example.aqa.data.DataHelper;
 
@@ -11,10 +14,26 @@ import static io.restassured.RestAssured.given;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchema;
 import static org.apache.http.HttpStatus.*;
 import static org.example.aqa.data.EndPoints.GET_TOKEN;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CreateTokenTest extends BaseTest {
 
-    private static final File schema = new File("src/test/resources/get_token_schema.json");
+    @Test
+    @DisplayName("Authentication Test with correct username and password. Checking the body of the answer")
+    @Epic("Authentication")
+    @Feature("Happy Path")
+    public void AuthTestWithCredentials_CheckStatus() {
+        given()
+                .spec(requestSpec)
+                .body(DataHelper.getCorrectCredentials())
+                .when()
+                .post(GET_TOKEN)
+                .then()
+                .spec(responseSpec)
+                .assertThat()
+                .statusCode(SC_OK);
+    }
 
     @Test
     @DisplayName("Authentication Test with correct username and password. Checking the body of the answer")
@@ -27,24 +46,28 @@ public class CreateTokenTest extends BaseTest {
                 .when()
                 .post(GET_TOKEN)
                 .then()
+                .spec(responseSpec)
                 .assertThat()
-                .body(matchesJsonSchema(schema));
+                .body(matchesJsonSchema(DataHelper.getTokenSchema));
     }
 
     @Test
-    @DisplayName("Authentication Test with correct username and password. Checking the body of the answer")
+    @DisplayName("Authentication Test with correct username and password. Checking the presence of the body")
     @Epic("Authentication")
     @Feature("Happy Path")
     @Story("Without optional params")
     public void AuthTestWithCredentials_CheckJSONContent() {
-        given()
+        DataHelper.TokenInfo tokenInfo = given()
                 .spec(requestSpec)
-                .body(new DataHelper.AuthInfo("qwerty", "54498987987"))
+                .body(DataHelper.getCorrectCredentials())
                 .when()
                 .post(GET_TOKEN)
                 .then()
-                .assertThat()
-                .body(matchesJsonSchema(schema));
+                .spec(responseSpec)
+                .extract()
+                .response()
+                .as(DataHelper.TokenInfo.class);
+        assertFalse(StringUtils.isEmpty(tokenInfo.getToken()));
     }
 
     @Test
@@ -57,6 +80,7 @@ public class CreateTokenTest extends BaseTest {
                 .when()
                 .post(GET_TOKEN)
                 .then()
+                .spec(responseSpec)
                 .assertThat()
                 .contentType(ContentType.XML);
     }

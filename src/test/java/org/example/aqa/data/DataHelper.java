@@ -2,11 +2,13 @@ package org.example.aqa.data;
 
 import lombok.Value;
 
+import java.io.File;
 import java.util.Date;
-import java.util.Random;
 
 public class DataHelper {
     private DataHelper() {}
+
+    public static final File getTokenSchema = new File("src/test/resources/get_token_schema.json");
 
     @Value
     public static class AuthInfo {

@@ -40,4 +40,5 @@ public class BaseTest {
     static final ResponseSpecification responseSpec = new ResponseSpecBuilder()
         .log(LogDetail.BODY)
         .build();
+
 }

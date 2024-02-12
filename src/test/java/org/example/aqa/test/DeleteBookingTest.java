@@ -1,40 +1,40 @@
 package org.example.aqa.test;
 
 import io.qameta.allure.*;
-import io.restassured.builder.RequestSpecBuilder;
-import io.restassured.filter.log.LogDetail;
-import io.restassured.specification.RequestSpecification;
-import org.example.aqa.data.APIHelper;
+import org.example.aqa.data.Config;
 import org.example.aqa.data.DataHelper;
+import org.example.aqa.data.EndPoints;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import static io.restassured.RestAssured.given;
 import static org.apache.http.HttpStatus.*;
-import static org.example.aqa.data.APIHelper.*;
+import static org.example.aqa.data.DataHelper.*;
 import static org.example.aqa.data.EndPoints.BOOKING_ID;
 
 public class DeleteBookingTest extends BaseTest {
 
-    final static String serverURL = System.getProperty("serverURI");
-    private static final RequestSpecification requestSpec = new RequestSpecBuilder()
-            .setBaseUri(serverURL)
-//            .setPort(3001)
-            .log(LogDetail.ALL)
-            .build();
-
     @Test
-    @DisplayName("")
+    @DisplayName("Delete booking test - with the correct token by cookie")
     @Epic("Booking")
     @Feature("Happy path")
     @Severity(SeverityLevel.CRITICAL)
     public void DeleteBooking_WithCorrectToken_ByCookie() {
-        var token = createAuthToken(DataHelper.getCorrectCredentials(), SC_OK);
+        TokenInfo tokenInfo = given()
+                .spec(requestSpec)
+                .body(DataHelper.getCorrectCredentials())
+                .when()
+                .post(EndPoints.GET_TOKEN)
+                .then().log().all()
+                .statusCode(SC_OK)
+                .extract()
+                .body()
+                .as(TokenInfo.class);
         given()
                 .spec(requestSpec)
-                .cookie("token=" + token)
+                .cookie("token=" + tokenInfo.getToken())
                 .when()
                 .delete(BOOKING_ID, 1)
                 .then()
@@ -42,25 +42,25 @@ public class DeleteBookingTest extends BaseTest {
                 .statusCode(SC_CREATED);
     }
 
-    @Test
-    @DisplayName("")
+    @ParameterizedTest
+    @ValueSource(ints = { 1, 2, 8, 11 })
+    @DisplayName("Delete booking test - with the correct credentials by basic authorization")
     @Epic("Booking")
     @Feature("Happy path")
     @Severity(SeverityLevel.CRITICAL)
-    public void DeleteBooking_WithCorrectToken_ByAuthorization() {
-        var token = createAuthToken(DataHelper.getCorrectCredentials(), SC_OK);
+    public void DeleteBooking_WithBasicAuth(int bookingId) {
         given()
                 .spec(requestSpec)
-                .header("Authorization", "Basic " + token)
+                .auth().basic(Config.username, Config.password)
                 .when()
-                .delete(BOOKING_ID, 1)
+                .delete(BOOKING_ID, bookingId)
                 .then()
                 .assertThat()
                 .statusCode(SC_CREATED);
     }
 
     @Test
-    @DisplayName("")
+    @DisplayName("Delete booking test - with the wrong token")
     @Epic("Booking")
     @Feature("Sad path")
     @Story("Wrong Token")
@@ -68,43 +68,46 @@ public class DeleteBookingTest extends BaseTest {
     public void Delete_Booking_with_wrong_token_by_Cookie() {
         given()
                 .spec(requestSpec)
-                .cookie("token=000000000")
+                .cookie("token=000000")
                 .when()
                 .delete(BOOKING_ID, 1)
                 .then()
+                .spec(responseSpec)
                 .assertThat()
                 .statusCode(SC_FORBIDDEN);
     }
 
     @Test
-    @DisplayName("")
+    @DisplayName("Delete booking test - with the wrong credentials by basic authorization")
     @Epic("Booking")
     @Feature("Sad path")
-    @Story("Wrong Token")
+    @Story("Wrong Credentails")
     @Severity(SeverityLevel.CRITICAL)
-    public void Delete_Booking_with_wrong_token_by_Authorization() {
+    public void DeleteBookingWithWrongCredentials_WithBasicAuth() {
         given()
                 .spec(requestSpec)
-                .header("Authorization", "Basic 0000000000")
+                .auth().basic("err", "wqewqeq")
                 .when()
                 .delete(BOOKING_ID, 1)
                 .then()
+                .spec(responseSpec)
                 .assertThat()
                 .statusCode(SC_FORBIDDEN);
     }
 
     @Test
-    @DisplayName("")
+    @DisplayName("Delete booking test - with no any authorization")
     @Epic("Booking")
     @Feature("Sad path")
     @Story("No Token")
     @Severity(SeverityLevel.CRITICAL)
-    public void DeleteBooking_WithNoToken() {
+    public void DeleteBooking_WithNoAuth() {
         given()
                 .spec(requestSpec)
                 .when()
                 .delete(BOOKING_ID, 1)
                 .then()
+                .spec(responseSpec)
                 .assertThat()
                 .statusCode(SC_FORBIDDEN);
     }
