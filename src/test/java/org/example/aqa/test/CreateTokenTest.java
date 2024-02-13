@@ -5,6 +5,7 @@ import io.restassured.http.ContentType;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.example.aqa.data.APIHelper;
+import org.example.aqa.data.EndPoints;
 import org.junit.jupiter.api.*;
 import org.example.aqa.data.DataHelper;
 
@@ -13,7 +14,6 @@ import java.io.File;
 import static io.restassured.RestAssured.given;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchema;
 import static org.apache.http.HttpStatus.*;
-import static org.example.aqa.data.EndPoints.GET_TOKEN;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -28,7 +28,7 @@ public class CreateTokenTest extends BaseTest {
                 .spec(requestSpec)
                 .body(DataHelper.getCorrectCredentials())
                 .when()
-                .post(GET_TOKEN)
+                .post(EndPoints.GET_TOKEN)
                 .then()
                 .spec(responseSpec)
                 .assertThat()
@@ -44,7 +44,7 @@ public class CreateTokenTest extends BaseTest {
                 .spec(requestSpec)
                 .body(DataHelper.getCorrectCredentials())
                 .when()
-                .post(GET_TOKEN)
+                .post(EndPoints.GET_TOKEN)
                 .then()
                 .spec(responseSpec)
                 .assertThat()
@@ -52,7 +52,7 @@ public class CreateTokenTest extends BaseTest {
     }
 
     @Test
-    @DisplayName("Authentication Test with correct username and password. Checking the presence of the body")
+    @DisplayName("Authentication Test with correct username and password. Checking the presence of the payload")
     @Epic("Authentication")
     @Feature("Happy Path")
     @Story("Without optional params")
@@ -61,7 +61,7 @@ public class CreateTokenTest extends BaseTest {
                 .spec(requestSpec)
                 .body(DataHelper.getCorrectCredentials())
                 .when()
-                .post(GET_TOKEN)
+                .post(EndPoints.GET_TOKEN)
                 .then()
                 .spec(responseSpec)
                 .extract()
@@ -77,8 +77,9 @@ public class CreateTokenTest extends BaseTest {
         given()
                 .spec(requestSpec)
                 .accept(ContentType.XML)
+                .body(DataHelper.getCorrectCredentials())
                 .when()
-                .post(GET_TOKEN)
+                .post(EndPoints.GET_TOKEN)
                 .then()
                 .spec(responseSpec)
                 .assertThat()

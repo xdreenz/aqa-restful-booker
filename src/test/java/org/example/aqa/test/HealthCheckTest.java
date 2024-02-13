@@ -2,11 +2,11 @@ package org.example.aqa.test;
 
 import io.qameta.allure.*;
 import org.apache.http.HttpStatus;
+import org.example.aqa.data.EndPoints;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static io.restassured.RestAssured.given;
-import static org.example.aqa.data.EndPoints.PING;
 
 public class HealthCheckTest extends BaseTest {
 
@@ -19,7 +19,7 @@ public class HealthCheckTest extends BaseTest {
         given()
                 .spec(requestSpec)
                 .when()
-                .post(PING)
+                .post(EndPoints.PING)
                 .then()
                 .spec(responseSpec)
                 .assertThat()
@@ -32,11 +32,11 @@ public class HealthCheckTest extends BaseTest {
     @Feature("Sad path")
     @Story("Wrong method")
     @Severity(SeverityLevel.NORMAL)
-    public void HealthCheck_WrongMethod() {
+    public void HealthCheck_WithWrongMethod() {
         given()
                 .spec(requestSpec)
                 .when()
-                .get(PING)
+                .get(EndPoints.PING)
                 .then()
                 .spec(responseSpec)
                 .assertThat()

@@ -12,7 +12,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 import static io.restassured.RestAssured.given;
 import static org.apache.http.HttpStatus.*;
 import static org.example.aqa.data.DataHelper.*;
-import static org.example.aqa.data.EndPoints.BOOKING_ID;
 
 public class DeleteBookingTest extends BaseTest {
 
@@ -24,7 +23,7 @@ public class DeleteBookingTest extends BaseTest {
     public void DeleteBooking_WithCorrectToken_ByCookie() {
         TokenInfo tokenInfo = given()
                 .spec(requestSpec)
-                .body(DataHelper.getCorrectCredentials())
+                .body(getCorrectCredentials())
                 .when()
                 .post(EndPoints.GET_TOKEN)
                 .then().log().all()
@@ -36,7 +35,7 @@ public class DeleteBookingTest extends BaseTest {
                 .spec(requestSpec)
                 .cookie("token=" + tokenInfo.getToken())
                 .when()
-                .delete(BOOKING_ID, 1)
+                .delete(EndPoints.BOOKING_ID, 1)
                 .then()
                 .assertThat()
                 .statusCode(SC_CREATED);
@@ -53,7 +52,7 @@ public class DeleteBookingTest extends BaseTest {
                 .spec(requestSpec)
                 .auth().basic(Config.username, Config.password)
                 .when()
-                .delete(BOOKING_ID, bookingId)
+                .delete(EndPoints.BOOKING_ID, bookingId)
                 .then()
                 .assertThat()
                 .statusCode(SC_CREATED);
@@ -64,13 +63,13 @@ public class DeleteBookingTest extends BaseTest {
     @Epic("Booking")
     @Feature("Sad path")
     @Story("Wrong Token")
-    @Severity(SeverityLevel.CRITICAL)
+    @Severity(SeverityLevel.NORMAL)
     public void Delete_Booking_with_wrong_token_by_Cookie() {
         given()
                 .spec(requestSpec)
                 .cookie("token=000000")
                 .when()
-                .delete(BOOKING_ID, 1)
+                .delete(EndPoints.BOOKING_ID, 1)
                 .then()
                 .spec(responseSpec)
                 .assertThat()
@@ -82,13 +81,13 @@ public class DeleteBookingTest extends BaseTest {
     @Epic("Booking")
     @Feature("Sad path")
     @Story("Wrong Credentails")
-    @Severity(SeverityLevel.CRITICAL)
+    @Severity(SeverityLevel.NORMAL)
     public void DeleteBookingWithWrongCredentials_WithBasicAuth() {
         given()
                 .spec(requestSpec)
                 .auth().basic("err", "wqewqeq")
                 .when()
-                .delete(BOOKING_ID, 1)
+                .delete(EndPoints.BOOKING_ID, 1)
                 .then()
                 .spec(responseSpec)
                 .assertThat()
@@ -100,12 +99,12 @@ public class DeleteBookingTest extends BaseTest {
     @Epic("Booking")
     @Feature("Sad path")
     @Story("No Token")
-    @Severity(SeverityLevel.CRITICAL)
+    @Severity(SeverityLevel.NORMAL)
     public void DeleteBooking_WithNoAuth() {
         given()
                 .spec(requestSpec)
                 .when()
-                .delete(BOOKING_ID, 1)
+                .delete(EndPoints.BOOKING_ID, 1)
                 .then()
                 .spec(responseSpec)
                 .assertThat()

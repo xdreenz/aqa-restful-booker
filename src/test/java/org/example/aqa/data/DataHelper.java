@@ -9,6 +9,7 @@ public class DataHelper {
     private DataHelper() {}
 
     public static final File getTokenSchema = new File("src/test/resources/get_token_schema.json");
+    public static final File getBookingIdsSchema = new File("src/test/resources/get_booking_ids_schema.json");
 
     @Value
     public static class AuthInfo {
@@ -58,5 +59,6 @@ public class DataHelper {
     public static AuthInfo getCorrectCredentials() {
         return new AuthInfo(Config.username, Config.password);
     }
+
 }
 
