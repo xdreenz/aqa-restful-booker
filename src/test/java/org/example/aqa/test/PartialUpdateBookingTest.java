@@ -1,4 +1,4 @@
 package org.example.aqa.test;
 
-public class PartialUpdateBookingTest {
+public class PartialUpdateBookingTest extends BaseTest {
 }

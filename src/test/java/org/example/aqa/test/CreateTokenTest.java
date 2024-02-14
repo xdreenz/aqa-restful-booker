@@ -3,19 +3,18 @@ package org.example.aqa.test;
 import io.qameta.allure.*;
 import io.restassured.http.ContentType;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpStatus;
-import org.example.aqa.data.APIHelper;
 import org.example.aqa.data.EndPoints;
 import org.junit.jupiter.api.*;
 import org.example.aqa.data.DataHelper;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.MethodSource;
 
-import java.io.File;
+import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
 import static io.restassured.module.jsv.JsonSchemaValidator.matchesJsonSchema;
 import static org.apache.http.HttpStatus.*;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class CreateTokenTest extends BaseTest {
 
@@ -57,7 +56,7 @@ public class CreateTokenTest extends BaseTest {
     @Feature("Happy Path")
     @Story("Without optional params")
     public void AuthTestWithCredentials_CheckJSONContent() {
-        DataHelper.TokenInfo tokenInfo = given()
+        String token = given()
                 .spec(requestSpec)
                 .body(DataHelper.getCorrectCredentials())
                 .when()
@@ -66,12 +65,15 @@ public class CreateTokenTest extends BaseTest {
                 .spec(responseSpec)
                 .extract()
                 .response()
-                .as(DataHelper.TokenInfo.class);
-        assertFalse(StringUtils.isEmpty(tokenInfo.getToken()));
+                .jsonPath()
+                .getString("token");
+        assertFalse(StringUtils.isEmpty(token));
     }
 
     @Test
-    @DisplayName("Authentication Test with another ContentType. Checking the content type of the answer")
+    @DisplayName("Authentication Test with another ContentType (XML). Checking the content type of the answer")
+    @Epic("Authentication")
+    @Feature("Sad Path")
     @Severity(SeverityLevel.MINOR)
     public void AuthTestWithCredentials_CheckXMLContent() {
         given()
@@ -84,5 +86,30 @@ public class CreateTokenTest extends BaseTest {
                 .spec(responseSpec)
                 .assertThat()
                 .contentType(ContentType.XML);
+    }
+
+    static Stream<DataHelper.AuthInfo> authInfoProvider() {
+        return Stream.of(
+                new DataHelper.AuthInfo("user", ""),
+                new DataHelper.AuthInfo("", "pass"),
+                new DataHelper.AuthInfo("", "")
+        );
+    }
+    @ParameterizedTest
+    @MethodSource("authInfoProvider")
+    @DisplayName("Authentication Test with empty username or/and password. Checking the status of the answer")
+    @Epic("Authentication")
+    @Feature("Sad Path")
+    public void AuthTest_EmptyCredentials(DataHelper.AuthInfo authInfo) {
+        given()
+                .spec(requestSpec)
+                .body(authInfo)
+                .when()
+                .post(EndPoints.GET_TOKEN)
+                .then()
+                .spec(responseSpec)
+                .assertThat()
+                .statusCode(SC_FORBIDDEN);
+
     }
 }

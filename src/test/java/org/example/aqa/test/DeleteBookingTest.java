@@ -2,7 +2,6 @@ package org.example.aqa.test;
 
 import io.qameta.allure.*;
 import org.example.aqa.data.Config;
-import org.example.aqa.data.DataHelper;
 import org.example.aqa.data.EndPoints;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -21,7 +20,7 @@ public class DeleteBookingTest extends BaseTest {
     @Feature("Happy path")
     @Severity(SeverityLevel.CRITICAL)
     public void DeleteBooking_WithCorrectToken_ByCookie() {
-        TokenInfo tokenInfo = given()
+        String token = given()
                 .spec(requestSpec)
                 .body(getCorrectCredentials())
                 .when()
@@ -29,11 +28,11 @@ public class DeleteBookingTest extends BaseTest {
                 .then().log().all()
                 .statusCode(SC_OK)
                 .extract()
-                .body()
-                .as(TokenInfo.class);
+                .response()
+                .jsonPath().getString("token");
         given()
                 .spec(requestSpec)
-                .cookie("token=" + tokenInfo.getToken())
+                .cookie("token=" + token)
                 .when()
                 .delete(EndPoints.BOOKING_ID, 1)
                 .then()
@@ -42,7 +41,7 @@ public class DeleteBookingTest extends BaseTest {
     }
 
     @ParameterizedTest
-    @ValueSource(ints = { 1, 2, 8, 11 })
+    @ValueSource(ints = {1, 2, 8, 11})
     @DisplayName("Delete booking test - with the correct credentials by basic authorization")
     @Epic("Booking")
     @Feature("Happy path")
@@ -85,7 +84,7 @@ public class DeleteBookingTest extends BaseTest {
     public void DeleteBookingWithWrongCredentials_WithBasicAuth() {
         given()
                 .spec(requestSpec)
-                .auth().basic("err", "wqewqeq")
+                .auth().basic("err", "err")
                 .when()
                 .delete(EndPoints.BOOKING_ID, 1)
                 .then()

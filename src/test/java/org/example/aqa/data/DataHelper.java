@@ -1,5 +1,8 @@
 package org.example.aqa.data;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.Data;
 import lombok.Value;
 
 import java.io.File;
@@ -10,6 +13,7 @@ public class DataHelper {
 
     public static final File getTokenSchema = new File("src/test/resources/get_token_schema.json");
     public static final File getBookingIdsSchema = new File("src/test/resources/get_booking_ids_schema.json");
+    public static final File getBookingSchema = new File("src/test/resources/get_booking_schema.json");
 
     @Value
     public static class AuthInfo {
@@ -17,43 +21,37 @@ public class DataHelper {
         String password;
     }
 
-    @Value
-    public static class TokenInfo {
-        String token;
-    }
-
-    @Value
-    public static class BookingId {
-        Number bookingid;
-    }
-
-    @Value
+    @Data
     public static class BookingInfo {
-        String firstname;
-        String lastname;
-        Number totalprice;
-        boolean depositpaid;
-        BookingDates bookingdates;
-        String additionalneeds;
+        @JsonProperty("firstname")
+        String firstName;
 
-        public static class BookingDates {
-            private Date checkin;
-            private Date checkout;
-        }
+        @JsonProperty("lastname")
+        String lastName;
+
+        @JsonProperty("totalprice")
+        Integer totalPrice;
+
+        @JsonProperty("depositpaid")
+        boolean depositPaid;
+
+        @JsonProperty("bookingdates")
+        BookingDates bookingDates;
+
+        @JsonProperty("additionalneeds")
+        String additionalNeeds;
+
     }
 
-    @Value
-    public static class APICardInfo {
-        String id;
-        String number;
-        Integer balance;
-    }
+    @Data
+    public static class BookingDates {
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+        @JsonProperty("checkin")
+        Date checkIn;
 
-    @Value
-    public static class APITransferInfo {
-        String from;
-        String to;
-        int amount;
+        @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+        @JsonProperty("checkout")
+        Date checkOut;
     }
 
     public static AuthInfo getCorrectCredentials() {
