@@ -30,7 +30,7 @@ public class DataHelper {
         String lastName;
 
         @JsonProperty("totalprice")
-        Integer totalPrice;
+        int totalPrice;
 
         @JsonProperty("depositpaid")
         boolean depositPaid;
